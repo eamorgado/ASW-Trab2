@@ -10,7 +10,7 @@ import java.util.Objects;
  * 	A table is a collection of cells each indexed by row and column.
  * 
  * @author Eduardo Morgado (up201706894)
- * @author Ângelo Gomes ()
+ * @author ngelo Gomes (up201703990)
  * @since April 2020
  */
 public class Table {
