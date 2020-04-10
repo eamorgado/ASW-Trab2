@@ -14,7 +14,7 @@ import wwwordz.shared.Table.Cell;
  * 	are in neighboring cells on the grid and the letter in each cell is used only once
  * 
  * @author Eduardo Morgado (up201706894)
- * @author Ângelo Gomes ()
+ * @author Ã‚ngelo Gomes (up201703990)
  * @since April 2020
  */
 public class Puzzle implements Serializable{
