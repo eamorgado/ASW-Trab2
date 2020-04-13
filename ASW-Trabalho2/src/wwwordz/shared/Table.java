@@ -1,27 +1,32 @@
 package wwwordz.shared;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+
+import wwwordz.shared.Table.Cell;
+import wwwordz.shared.Positions;
 
 /**
  * Class representing the a puzzle table.
  * 	A table is a collection of cells each indexed by row and column.
  * 
  * @author Eduardo Morgado (up201706894)
- * @author ngelo Gomes (up201703990)
+ * @author Ângelo Gomes (up201703990)
  * @since April 2020
  */
-public class Table {
+public class Table implements Iterable<Cell>{	
+	private static final int SIZE = 4;
 	private Cell[][] table;
+	
 	
 	/**
 	 * Nested class representing enclosing table
 	 */
 	static class Cell{
-		private int row;
-		private int column;
+		private int row, column;
 		private char letter;
 		
 		/**
@@ -52,18 +57,6 @@ public class Table {
 			this.letter = letter;
 		}
 		
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Cell other = (Cell) obj;
-			return column == other.column && letter == other.letter && row == other.row;
-		}
-		
 		/**
 		 * This method returns the letter in the cell
 		 * @param void
@@ -84,12 +77,7 @@ public class Table {
 		 * @return int
 		 */
 		public int getColumn() {return column;}
-		
-		@Override
-		public int hashCode() {
-			return Objects.hash(column, letter, row);
-		}
-		
+				
 		/**
 		 * Method that checks if cell is empty/blank
 		 * @param void
@@ -105,28 +93,46 @@ public class Table {
 		public void setLetter(char letter) {letter = letter;}
 		
 		@Override
-		public String toString() {
-			return "Cell [row=" + row + ", column=" + column + ", letter=" + letter + "]";
+		public int hashCode() {
+			return Objects.hash(column, letter, row);
 		}
 		
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!(obj instanceof Cell)) {
+				return false;
+			}
+			Cell other = (Cell) obj;
+			return column == other.column && letter == other.letter && row == other.row;
+		}
+		
+		@Override
+		public String toString() {
+			return "[(" + row + "," + column + ")," + letter +"]";
+		}		
 	}
+	
 	private class CellIterator implements Iterator<Table.Cell>{
 		private int row;
 		private int column;
 		
 		CellIterator(){
-			row = column = 0;
+			row = column = 1;
 		}
 		
 		@Override
 		public boolean hasNext() {
-			return row <= table[0].length;
+			return row <= SIZE;
 		}
 		
 		@Override
 		public Cell next() {
 			Cell cell = table[row][column++];
-			if(column > table[0].length) {
+			if(column > SIZE) {
+				//Margin reached => reset column, move to new line
 				column = 1;
 				row++;
 			}
@@ -137,39 +143,92 @@ public class Table {
 		public void remove() {
 			Cell cell = table[row][column];
 			cell.setLetter(' ');
-			if(column == 0) {
-				column = table[0].length - 1;
-				row = row > 0? --row : 0;
+			if(column == 1) {
+				column = SIZE - 1;
+				row = row > 1? --row : 1;
 			}else column--;
 		}
 	}
-
+	
+	
+	/**
+	 * Default constructor, initializes table with empty cells
+	 */
 	public Table(){
-		//TODO
+		table = new Cell[SIZE+2][SIZE+2]; //+2 for safe search
+		for(int r = 1; r <= SIZE; r++)
+			for(int c = 1; c <= SIZE; c++)
+				table[r][c] = new Cell(r,c);
 	}
 	
+	/**
+	 * Constructor that initializes table given a sequence of words
+	 * @param data
+	 */
 	public Table(String[] data) {
-		//TODO
+		table = new Cell[SIZE+2][SIZE+2]; //+2 for safe search
+		for(int r = 1; r <= SIZE; r++)
+			for(int c = 1; c <= SIZE; c++)
+				table[r][c] = new Cell(r,c,data[r-1].charAt(c-1));
 	}
 	
 	public Iterator<Cell> iterator(){
-		//TODO
+		return new CellIterator();
 	}
 	
-	public char getLetter(int row, int column) {return table[row][column].getLetter();}
-	public void setLetter(int row, int column,char letter) {table[row][column].setLetter(letter);}
-	public List<Table.Cell> getEmptyCells(){
-		//TODO
+	/**
+	 * Method that returns the letter of a cell at a given row and column
+	 * @param row
+	 * @param column
+	 * @return char
+	 */
+	public char getLetter(int row, int column) {
+		return table[row][column].getLetter();
 	}
-	public List<Table.Cell> getNeighbors(Table.Cell cell){
-		//TODO
-	}
-	public Table.Cell getCell(int row, int column){return table[row][column];}
 	
-	@Override
-	public String toString() {
-		return "Table [" + (table != null ? "table=" + Arrays.toString(table) : "") + "]";
+	/**
+	 * Method to set a letter at a given row and column
+	 * @param row
+	 * @param column
+	 * @param letter
+	 */
+	public void setLetter(int row, int column,char letter) {
+		table[row][column].setLetter(letter);
 	}
+	
+	/**
+	 * Method that returns a list with the empty cells in the table
+	 * @return List of empty cells
+	 */
+	public List<Cell> getEmptyCells(){
+		List<Cell> empty = new ArrayList<>();
+		for(Cell[] cells : table)
+			for(Cell cell : cells)
+				if(cell.isEmpty()) empty.add(cell);
+		return empty;
+	}
+	
+	public List<Cell> getNeighbors(Cell cell){
+		List<Cell> neighbors = new ArrayList<>();
+		Positions[] positions = Positions.values();
+		for(Positions pos : Positions.values()) {
+			int r = pos.calRow(cell), c = pos.calCol(cell);
+			if(table[r][c] != null)
+				neighbors.add(table[r][c]);
+		}
+		return neighbors;
+	}
+	
+	/**
+	 * Method that returns the cell at a given row and column
+	 * @param row
+	 * @param column
+	 * @return Cell 
+	 */
+	public Cell getCell(int row, int column){
+		return table[row][column];
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -177,13 +236,31 @@ public class Table {
 		result = prime * result + Arrays.deepHashCode(table);
 		return result;
 	}
+	
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!(obj instanceof Table))
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Table other = (Table) obj;
-		return Arrays.deepEquals(table, other.table);
+		for(int r = 1; r <= SIZE; r++)
+			for(int c = 1; c <= SIZE; c++)
+				if(!this.getCell(r,c).equals(other.getCell(r,c)))
+					return false;
+		return true;
+		//return Arrays.deepEquals(table, other.table);
+	}
+	
+	@Override
+	public String toString() {
+		String s = "";
+		for(Cell[] cells : table) {
+			for(Cell cell : cells) s += cell.getLetter();
+			s += '\n';
+		}
+		return s;
 	}
 }
