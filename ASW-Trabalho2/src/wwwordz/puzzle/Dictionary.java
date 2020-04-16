@@ -9,6 +9,14 @@ import java.util.Locale;
 import wwwordz.puzzle.Trie;
 import wwwordz.puzzle.Trie.Search;
 
+/**
+ * Organized collection of words, optimized for searching them.
+ * 
+ * This class is a singleton, there is at most, a single instance of this class
+ * 	per algorithm
+ * This dictionary uses a collection of Portuguese words loaded as a resource from
+ * 	a file in this package. It is backed by a Trie to index words and speedup searches
+ */
 public class Dictionary {
 	private static final String DICT_FILE = "wwwordz/puzzle/pt-PT-AO.dic";
 	private static final String PAT = "[A-Z]+";
@@ -42,17 +50,36 @@ public class Dictionary {
 		}
 	}
 	
-	private boolean isAlpha(String name) {
-	    return name.matches(PAT);
+	/**
+	 * Check if word is alpha based on regular expression
+	 * @param String word
+	 * @return boolead
+	 */
+	private boolean isAlpha(String word) {
+	    return word.matches(PAT);
 	}
 	
+	/**
+	 * Obtain the sole instance of this class. Multiple invocations will receive
+	 * 	the exact same instance.
+	 * @return singleton
+	 */
 	static Dictionary getInstance() {
 		return dictionary;
 	}
 	
+	/**
+	 * Return a large word from the trie
+	 * @return String large word
+	 */
 	String getRandomLargeWord() {
 		return trie.getRandomLargeWord();
 	}
+	
+	/**
+	 * Start a dictionary search
+	 * @return Search
+	 */
 	Search startSearch() {
 		return trie.startSearch();
 	}

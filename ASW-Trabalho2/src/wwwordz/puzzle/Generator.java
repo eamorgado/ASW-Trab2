@@ -9,6 +9,13 @@ import wwwordz.puzzle.Trie.Search;
 import wwwordz.shared.Puzzle;
 import wwwordz.shared.Table;
 
+/**
+ * A puzzle generator
+ * Creates a puzzle with many srambled words contained in a dictionary
+ * @author Eduardo Morgado (up201706894)
+ * @author Ângelo Gomes (up201703990)
+ * @since April 2020
+ */
 public class Generator {
 	private final Dictionary dictionary = Dictionary.getInstance();
 	private final Random rand;

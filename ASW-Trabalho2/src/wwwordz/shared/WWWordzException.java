@@ -1,5 +1,12 @@
 package wwwordz.shared;
 
+/**
+ * An exception in WWWordz. All constructors delegate in the super class
+ * 
+ * @author Eduardo Morgado (up201706894)
+ * @author Ângelo Gomes (up201703990)
+ * @since April 2020
+ */
 public class WWWordzException extends Exception{
 	private static final long serialVersionUID = 1L;
 	

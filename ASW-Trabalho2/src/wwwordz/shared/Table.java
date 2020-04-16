@@ -114,7 +114,9 @@ public class Table implements Iterable<Cell>{
 		}		
 	}
 	
-	//TODO
+	/**
+	 * Iterator over cells in the table
+	 */
 	private class CellIterator implements Iterator<Table.Cell>{
 		private int row;
 		private int column;
@@ -208,14 +210,21 @@ public class Table implements Iterable<Cell>{
 		return empty;
 	}
 	
+	/**
+	 * Method that returns up to 8 valid neighboring cells
+	 * 	of the given cell
+	 * This method relies on the support structure wwwordz.shared.Positions
+	 * 	a structure that stores the coordinates for each neighboring cell
+	 * 	according to the current cell coordinates
+	 * @param Cell cell - the cell to which we want to find the neighboring cells
+	 * @return List<Cell> - list of the valid/existing neighboring cells
+	 */
 	public List<Cell> getNeighbors(Cell cell){
+		int r, c;
 		List<Cell> neighbors = new ArrayList<>();
-		Positions[] positions = Positions.values();
-		for(Positions pos : Positions.values()) {
-			int r = pos.calRow(cell), c = pos.calCol(cell);
-			if(table[r][c] != null)
+		for(Positions pos : Positions.values())
+			if(table[(r = pos.calRow(cell))][(c = pos.calCol(cell))] != null)
 				neighbors.add(table[r][c]);
-		}
 		return neighbors;
 	}
 	

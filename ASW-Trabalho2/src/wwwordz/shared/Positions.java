@@ -24,6 +24,24 @@ enum Positions{
 	
 	public int getRow() {return this.row;}
 	public int getColumn() {return this.column;}
-	public int calRow(Cell cell) {return row + cell.getRow();}
-	public int calCol(Cell cell) {return column + cell.getColumn();}
+	
+	/**
+	 * Method to calculate the true coordinate for the row 
+	 * 	of this neighbor relative to cell
+	 * @param Cell cell
+	 * @return int row true coordinate
+	 */
+	public int calRow(Cell cell) {
+		return row + cell.getRow();
+	}
+	
+	/**
+	 * Method to calculate the true coordinate for the column 
+	 * 	of this neighbor relative to cell
+	 * @param Cell cell
+	 * @return int column true coordinate
+	 */
+	public int calCol(Cell cell) {
+		return column + cell.getColumn();
+	}
 }

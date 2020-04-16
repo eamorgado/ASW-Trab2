@@ -77,6 +77,9 @@ public class Trie implements Iterable<String>{
 		
 		/**
 		 * Method that performs a random walk in the data structure 
+		 * 	build a word with the use of a StringBuilder
+		 * 
+		 * Stop when reaching leaf (node with no descendants, size of map is 0)
 		 * @param StringBuilder sb
 		 */
 		void getRandomLargeWord(StringBuilder sb){
@@ -120,6 +123,12 @@ public class Trie implements Iterable<String>{
 			
 		}
 		
+		/**
+		 * Recursively descend trie, searching words
+		 * 	Stop when found a word (isWord() true)
+		 * @param Node node
+		 * @param String word built so far
+		 */
 		private void visitNodes(Node node,String word) {
 			for(char letter : node.keySet()) {
 				visitNodes(node.get(letter),word + letter);
@@ -170,7 +179,12 @@ public class Trie implements Iterable<String>{
 		}
 		 
 	}
-
+	
+	/**
+	 * Position in the node structure when looking for a word
+	 * 
+	 * A word can be searched giving successive words
+	 */
 	public static class Search{
 		private Node node;
 		
@@ -190,7 +204,7 @@ public class Trie implements Iterable<String>{
 		
 		/**
 		 * Method to check if we can continue the search with the current letter
-		 * @param lchar letter
+		 * @param char letter
 		 * @return boolean
 		 */
 		boolean continueWith(char letter) {
@@ -214,7 +228,11 @@ public class Trie implements Iterable<String>{
 		root = new Node();
 	}
 	
-	
+	/**
+	 * Perform a random walk in the data structure randomly selecting path in each node
+	 * 	until reaching a leaf
+	 * @return String of random large word
+	 */
 	String getRandomLargeWord() {
 		StringBuilder sb = new StringBuilder();
 		root.getRandomLargeWord(sb);
