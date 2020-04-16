@@ -21,7 +21,6 @@ public class Table implements Iterable<Cell>{
 	private static final int SIZE = 4;
 	private Cell[][] table;
 	
-	
 	/**
 	 * Nested class representing enclosing table
 	 */
@@ -115,6 +114,7 @@ public class Table implements Iterable<Cell>{
 		}		
 	}
 	
+	//TODO
 	private class CellIterator implements Iterator<Table.Cell>{
 		private int row;
 		private int column;
