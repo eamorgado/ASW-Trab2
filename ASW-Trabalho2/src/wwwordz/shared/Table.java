@@ -24,7 +24,7 @@ public class Table implements Iterable<Cell>{
 	/**
 	 * Nested class representing enclosing table
 	 */
-	static class Cell{
+	public static class Cell{
 		private int row, column;
 		private char letter;
 		

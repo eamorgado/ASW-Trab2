@@ -29,7 +29,7 @@ public class Puzzle implements Serializable{
 	 * 	saves the solution word as well as the list
 	 * 	of cells that form the word
 	 */
-	static class Solution implements Serializable{
+	public static class Solution implements Serializable{
 		private static final long serialVersionUID = 1L;
 		private List<Cell> cells;
 		private String word;
