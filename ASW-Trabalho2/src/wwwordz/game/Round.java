@@ -1,5 +1,8 @@
 package wwwordz.game;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +12,7 @@ import wwwordz.puzzle.Generator;
 import wwwordz.shared.Configs;
 import wwwordz.shared.Puzzle;
 import wwwordz.shared.Rank;
+import wwwordz.shared.WWWordzException;
 
 /**
  * A round has 4 sequential stages
@@ -37,8 +41,12 @@ import wwwordz.shared.Rank;
 public class Round {
 	private Date end, join, play, report,ranking;
 	Puzzle puzzle;
-	Map<String,Player> roundPlayers;
+	Map<String,Player> player_record;
+	Players players;
 	
+	/**
+	 * Enum storing stage durations
+	 */
 	private static enum Durations{
 		JOIN(Configs.JOIN_STAGE_DURATION),
 		PLAY(Configs.PLAY_STAGE_DURATION),
@@ -60,9 +68,37 @@ public class Round {
 	static enum Relative{before, after}
 	static enum Stage{join,play,ranking,report}
 	
+	/**
+	 * Custom comparator for players
+	 */
+	private class PlayerComparator implements Comparator<Player>{
+		@Override
+		public int compare(Player p1, Player p2) {
+			return p1.getPoints() > p2.getPoints() ? 1 
+				 : p2.getPoints() > p1.getPoints() ? -1
+				 : 0;
+				
+		}
+		
+	}
+	
 	Round(){
 		puzzle = new Generator().generate();
-		roundPlayers = new HashMap<>();
+		player_record = new HashMap<>();
+		players = Players.getInstance();
+		
+		//Initiate times sequentially
+		//First join, then play, report, rank, and end
+		//Each task depends on the time for task before and the duration of the task
+		join = new Date();
+		long time = join.getTime() + Durations.JOIN.getStageDuration();
+		play = new Date(time);
+		time = play.getTime() + Durations.PLAY.getStageDuration();
+		report = new Date(time);
+		time = report.getTime() + Durations.REPORT.getStageDuration();
+		ranking = new Date(time);
+		time = ranking.getTime() + Durations.RANKING.getStageDuration();
+		end = new Date(time);
 	}
 	
 	/**
@@ -83,14 +119,33 @@ public class Round {
 	
 	/**
 	 * Get table for this round
+	 * @throws WWWordzException 
 	 */
-	Puzzle getPuzzle() {}
+	Puzzle getPuzzle() throws WWWordzException {
+		Date current = new Date();
+		if(current.before(play))
+			throw new WWWordzException("Action expected on " + Stage.play + "not " + Relative.before);
+		else if(current.after(report))
+			throw new WWWordzException("Action expected on " + Stage.play + "not " + Relative.after);
+		return puzzle;
+	}
 	
 	/**
 	 * Get list of players in the round sorted by points
 	 * @return List<Rank> sorted list of rankings
+	 * @throws WWWordzException 
 	 */
-	List<Rank> getRanking(){}
+	List<Rank> getRanking() throws WWWordzException{
+		Date current = new Date();
+		if(current.before(ranking))
+			throw new WWWordzException("Action expected on " + Stage.ranking + "not " + Relative.before);
+		
+		ArrayList<Player> sorted = new ArrayList<>(player_record.values());
+		Collections.sort(sorted,new PlayerComparator());
+		List<Rank> ranks = new ArrayList<>();
+		sorted.forEach((p) -> ranks.add(new Rank(p.getNick(),p.getPoints(),p.getAccumulated())));
+		return ranks;		
+	}
 	
 	/**
 	 * Duration of ranking stage in milliseconds
@@ -119,15 +174,29 @@ public class Round {
 	/**
 	 * Time in milliseconds to the next play stage
 	 */
-	long getTimetoNextPlay() {}
+	long getTimetoNextPlay() {
+		Date current = new Date();
+		return current.before(play) ? play.getTime() - current.getTime()
+			 : end.getTime() - current.getTime() + Durations.JOIN.getStageDuration();
+	}
 	
 	/**
 	 * Register user with nick and password for this round
 	 * @param nick
 	 * @param password
 	 * @return
+	 * @throws WWWordzException 
 	 */
-	long register(String nick,String password) {}
+	long register(String nick,String password) throws WWWordzException {
+		Date current = new Date();
+		if(current.after(play))
+			throw new WWWordzException("Action expected on " + Stage.join + "not " + Relative.after);
+		else if(!players.verify(nick,password))
+			throw new WWWordzException("User non existant");
+		Player p = players.getPlayer(nick);
+		player_record.put(nick,p);
+		return play.getTime() - current.getTime();		
+	}
 	
 	/**
 	 * Change join stage
