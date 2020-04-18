@@ -104,8 +104,64 @@ public class Generator {
 		List<Solution> solutions = new ArrayList<>();
 		
 		for(Cell cell : table) {
-			//TODO
+			//Mark beginning of search
+			Search search = dictionary.startSearch();
+			//List of used cells
+			List<Cell> used_cells = new ArrayList<>();
+			getSolutions(table,search,used_cells,cell,"",solutions);
 		}
+		return solutions;
+	}
+	
+	private void getSolutions(Table t,Search sh,List<Cell> used,Cell cell,String seq,List<Solution> sols) {
+		//Check is cell was used
+		if(used.contains(cell)) return;
+		//Mark used
+		used.add(cell);
+		
+		//Check if we can continue search
+		if(!sh.continueWith(cell.getLetter())) return;
+		//Add to word
+		seq += cell.getLetter();
+		
+		//Consider solution => unique words with more than 2 letters 
+		boolean flag = true;
+		for(Solution s : sols) {
+			if(s.getWord().equals(seq)) {
+				flag = false; 
+				break;
+			}
+		}
+		
+		if(flag && sh.isWord() && seq.length() > 2)
+			sols.add(new Solution(seq,used));
+		
+		for(Cell neighbor : t.getNeighbors(cell)) {
+			List<Cell> used_extend = new ArrayList<>(used);
+			String seq_ext = seq;
+			Search sh_ext = new Search(sh);
+			getSolutions(t,sh_ext,used_extend,neighbor,seq_ext,sols);			
+		}
+	}
+	
+	
+	Puzzle random() {
+		Puzzle puzzle = new Puzzle();
+		int size = puzzle.getTable().getSize();
+		String words[] = new String[size];
+		
+		for(int i = 0; i < size; i++) {
+			String word = "";
+			for(int j = 0; j < size; j++)
+				word += (char) (rand.nextInt(26) + 'A');
+			words[i] = word;
+		}
+		
+		//Gen table based on words and update puzzle
+		Table table = new Table(words);
+		puzzle.setTable(table);
+		puzzle.setSolutions(getSolutions(table));
+		return puzzle;
 	}
 	
 }
