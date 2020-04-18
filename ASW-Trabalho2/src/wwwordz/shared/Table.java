@@ -204,9 +204,9 @@ public class Table implements Iterable<Cell>{
 	 */
 	public List<Cell> getEmptyCells(){
 		List<Cell> empty = new ArrayList<>();
-		for(Cell[] cells : table)
-			for(Cell cell : cells)
-				if(cell.isEmpty()) empty.add(cell);
+		for(int r = 1; r <= SIZE; r++)
+			for(int c = 1; c <= SIZE; c++)
+				if(table[r][c].isEmpty()) empty.add(table[r][c]);
 		return empty;
 	}
 	
@@ -236,6 +236,10 @@ public class Table implements Iterable<Cell>{
 	 */
 	public Cell getCell(int row, int column){
 		return table[row][column];
+	}
+	
+	public int getSize() {
+		return SIZE;
 	}
 	
 	@Override
