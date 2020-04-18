@@ -151,7 +151,7 @@ public class Round {
 	/**
 	 * Change ranking stage
 	 */
-	static void setRankingStageDuration(long rankingStageDuration) {
+	static void setRankingStageSuration(long rankingStageDuration) {
 		Durations.RANKING.setStageDuration(rankingStageDuration);
 	}
 	
