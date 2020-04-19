@@ -39,20 +39,21 @@ import wwwordz.shared.WWWordzException;
  * @since April 2020
  */
 public class Round {
+	private static final Generator generator = new Generator();
+	private static final Players players = Players.getInstance();
+	private static List<Rank> ranks = new ArrayList<>();
 	private Date end, join, play, report,ranking;
-	Puzzle puzzle;
-	Map<String,Player> player_record;
-	Players players;
-	private List<Rank> ranks;
+	private final Puzzle puzzle = generator.generate();
+	private Map<String,Player> roundPlayers = new HashMap<>();
 	
 	/**
 	 * Enum storing stage durations
 	 */
-	private static enum Durations{
+	private enum Durations{
 		JOIN(Configs.JOIN_STAGE_DURATION),
 		PLAY(Configs.PLAY_STAGE_DURATION),
-		RANKING(Configs.RANKING_STAGE_DURATION),
-		REPORT(Configs.REPORT_STAGE_DURATION);
+		REPORT(Configs.REPORT_STAGE_DURATION),
+		RANKING(Configs.RANKING_STAGE_DURATION);
 		
 		private long stageDuration;
 		Durations(long duration){
@@ -66,8 +67,8 @@ public class Round {
 		}
 	}
 	
-	static enum Relative{before, after}
-	static enum Stage{join,play,report,ranking}
+	static enum Relative{before, after};
+	static enum Stage{join,play,report,ranking};
 	
 	/**
 	 * Custom comparator for players
@@ -84,10 +85,6 @@ public class Round {
 	}
 	
 	Round(){
-		puzzle = new Generator().generate();
-		player_record = new HashMap<>();
-		players = Players.getInstance();
-		ranks = new ArrayList();
 		//Initiate times sequentially
 		//First join, then play, report, rank, and end
 		//Each task depends on the time for task before and the duration of the task
@@ -140,12 +137,13 @@ public class Round {
 		Date current = new Date();
 		if(current.before(ranking))
 			throw new WWWordzException("Action expected on " + Stage.ranking + " not " + Relative.before);
-		
-		ArrayList<Player> sorted = new ArrayList<>(player_record.values());
+		ArrayList<Player> sorted = new ArrayList<>(roundPlayers.values());
 		Collections.sort(sorted,new PlayerComparator());
-		ranks.clear();
-		for(Player p : sorted)
-			ranks.add(new Rank(p.getNick(),p.getPoints(),p.getAccumulated()));
+		if(!ranks.isEmpty()) return ranks;
+		for(Player p : sorted) {
+			Rank rnk = new Rank(p.getNick(),p.getPoints(),p.getAccumulated());
+			ranks.add(rnk);
+		}
 		return ranks;		
 	}
 	
@@ -196,7 +194,7 @@ public class Round {
 		else if(!players.verify(nick,password))
 			throw new WWWordzException("User non existant");
 		Player p = players.getPlayer(nick);
-		player_record.put(nick,p);
+		roundPlayers.put(nick,p);
 		return play.getTime() - current.getTime();		
 	}
 	
@@ -224,9 +222,9 @@ public class Round {
 			throw new WWWordzException("Action expected on " + Stage.report + " not " + Relative.before);
 		else if(current.after(ranking))
 			throw new WWWordzException("Action expected on " + Stage.report + " not " + Relative.after);
-		else if(!player_record.containsKey(nick))
+		else if(!roundPlayers.containsKey(nick))
 			throw new WWWordzException("Player " + nick + " non existant");
-		player_record.get(nick).setPoints(points);
+		roundPlayers.get(nick).setPoints(points);
 	}
 	
 	/**

@@ -20,10 +20,9 @@ import wwwordz.shared.Table.Cell;
  * @since April 2020
  */
 public class Generator {
-	private final Random rand = new Random();
-	public Generator() {
-		
-	}
+	private final Dictionary dictionary = Dictionary.getInstance();
+	private final Random rand = new Random();;
+	public Generator() {}
 	
 	/**
 	 * Generate a high quality puzzle with many words in it
@@ -43,10 +42,9 @@ public class Generator {
 			free.put(key,cell);
 		}
 		//For all available cells, get a random word and fill them
-		
 		while(!free.isEmpty()) {
-			String word = Dictionary.getInstance().getRandomLargeWord();
-			List<Cell> cells = new ArrayList<>(free.values());
+			String word = dictionary.getRandomLargeWord();
+			ArrayList<Cell> cells = new ArrayList<>(free.values());
 			Cell c = cells.get(rand.nextInt(cells.size()));
 			fillCellNeighbors(table,free,c,word,0);
 		}
@@ -72,14 +70,14 @@ public class Generator {
 	private void fillCellNeighbors(Table table,HashMap<String,Cell> free, Cell cell, String word, int index) {
 		int r, c;
 		r = cell.getRow(); c = cell.getColumn();
-		table.setLetter(r,c,word.charAt(index));
+		cell.setLetter(word.charAt(index));
 		if(free.containsKey(r+""+c))
 			free.remove(r+""+c);
 		//word has next char?
 		if(++index < word.length()) {
 			//Randomize order of neighbors
 			//List<Cell> neighbors = table.getNeighbors(cell);
-			List<Cell> neighbors = table.getNeighbors(cell);
+			List<Cell> neighbors = new ArrayList<>(table.getNeighbors(cell));
 			//for(Cell neighbor : table.getNeighbors(cell)) neighbors.add(neighbor);
 			Collections.shuffle(neighbors);
 			

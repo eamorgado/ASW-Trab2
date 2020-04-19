@@ -85,7 +85,7 @@ public class GeneratorTest {
 				"Empty table should have no solutions");
 		
 		List<Solution> solutions = generator.getSolutions(new Table(TableTest.data));
-		assertTrue(solutions.size() > 150,"This table has more than 150 solution");
+		assertTrue(solutions.size() > 150,"This table has more than 150 solution actual "+solutions.size());
 		
 		for(String word: words)
 			assertTrue(contains(solutions,word),"Word "+word+" expected in solutions");

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import wwwordz.shared.WWWordzException;
@@ -34,7 +36,7 @@ public class Players implements Serializable{
 		//get cwd
 		home = new File(System.getProperty("user.dir"));
 		//create serializable file (ser extension)
-		file = new File(home,"playesrs.ser");
+		file = new File(home,"players.ser");
 	}
 	
 	/**
@@ -96,8 +98,9 @@ public class Players implements Serializable{
 	 */
 	void cleanup() {
 		instance = restore();
-		for(String nick: instance.players.keySet())
-			players.remove(nick);
+		Collection<String> nicks = new ArrayList<>(instance.players.keySet());
+		for(String nick: nicks)
+			instance.players.remove(nick);
 		backup();
 	}
 	
@@ -110,6 +113,10 @@ public class Players implements Serializable{
 	 * @return
 	 */
 	static Players getInstance() {
+		if(instance == null) {
+			if(restore() == null) instance = new Players();
+			else instance = restore();
+		}
 		return instance;
 	}
 	
