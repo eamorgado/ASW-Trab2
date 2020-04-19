@@ -23,10 +23,6 @@ import wwwordz.shared.Puzzle;
 import wwwordz.shared.Rank;
 import wwwordz.shared.WWWordzException;
 
-/**
-* Template for a test class on Manager - YOU NEED TO IMPLEMENTS THESE TESTS!
-* 
-*/
 @DisplayName("Manager")
 public class ManagerTest extends TestData {
 	private static final int REPEAT = 100;
