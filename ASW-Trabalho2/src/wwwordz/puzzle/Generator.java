@@ -21,7 +21,7 @@ import wwwordz.shared.Table.Cell;
  */
 public class Generator {
 	private final Dictionary dictionary = Dictionary.getInstance();
-	private final Random rand = new Random();;
+	private Random rand = new Random();;
 	public Generator() {}
 	
 	/**
@@ -34,6 +34,7 @@ public class Generator {
 	 * @return Puzzle
 	 */
 	public Puzzle generate() {
+		rand = new Random();
 		Table table = new Table();
 		Puzzle puzzle = new Puzzle();
 		HashMap<String,Cell> free = new HashMap<>();
@@ -76,9 +77,7 @@ public class Generator {
 		//word has next char?
 		if(++index < word.length()) {
 			//Randomize order of neighbors
-			//List<Cell> neighbors = table.getNeighbors(cell);
 			List<Cell> neighbors = new ArrayList<>(table.getNeighbors(cell));
-			//for(Cell neighbor : table.getNeighbors(cell)) neighbors.add(neighbor);
 			Collections.shuffle(neighbors);
 			
 			//Iterate over neighbors, if free or have same letter as current in index, fill
@@ -110,7 +109,7 @@ public class Generator {
 		List<Solution> solutions = new ArrayList<>();
 		for(Cell cell : table) {
 			//Mark beginning of search
-			Search search = Dictionary.getInstance().startSearch();
+			Search search = dictionary.startSearch();
 			//List of used cells
 			List<Cell> used_cells = new ArrayList<>();
 			getSolutions(table,search,used_cells,cell,"",solutions);
