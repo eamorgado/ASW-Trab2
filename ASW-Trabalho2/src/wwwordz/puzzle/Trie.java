@@ -208,10 +208,9 @@ public class Trie implements Iterable<String>{
 		 * @return boolean
 		 */
 		boolean continueWith(char letter) {
-			return node == null ? false 
-					: node.containsKey(letter)? 
-							node.get(letter) != null
-					: false;
+			if(node == null)return false;
+			node = node.containsKey(letter)? node.get(letter) : null;
+			return node != null;
 		}
 		
 		/** 

@@ -2,6 +2,7 @@ package wwwordz.puzzle;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -19,11 +20,9 @@ import wwwordz.shared.Table.Cell;
  * @since April 2020
  */
 public class Generator {
-	private final Dictionary dictionary = Dictionary.getInstance();
-	private final Random rand;
-	
+	private final Random rand = new Random();
 	public Generator() {
-		rand = new Random();
+		
 	}
 	
 	/**
@@ -37,17 +36,20 @@ public class Generator {
 	 */
 	public Puzzle generate() {
 		Table table = new Table();
-		List<Cell> free = null;
-		
-		//For all available cells, get a random word and fill them
-		while((free = table.getEmptyCells()).size() > 0) {
-			Cell empty = free.get(rand.nextInt(free.size()));
-			String word = dictionary.getRandomLargeWord();
-			
-			//Place chars of word in cell and its neighbors
-			fillCellNeighbors(table,empty,word,0);			
-		}
 		Puzzle puzzle = new Puzzle();
+		HashMap<String,Cell> free = new HashMap<>();
+		for(Cell cell : table.getEmptyCells()) {
+			String key = cell.getRow() + "" + cell.getColumn();
+			free.put(key,cell);
+		}
+		//For all available cells, get a random word and fill them
+		
+		while(!free.isEmpty()) {
+			String word = Dictionary.getInstance().getRandomLargeWord();
+			List<Cell> cells = new ArrayList<>(free.values());
+			Cell c = cells.get(rand.nextInt(cells.size()));
+			fillCellNeighbors(table,free,c,word,0);
+		}
 		puzzle.setTable(table);
 		//Calculate solutions for this table
 		List<Solution> solutions = getSolutions(table);
@@ -67,19 +69,25 @@ public class Generator {
 	 * @param String word being saved in puzzle
 	 * @param int index for letter to be saved
 	 */
-	private void fillCellNeighbors(Table table, Cell cell, String word, int index) {
-		cell.setLetter(word.charAt(index));
+	private void fillCellNeighbors(Table table,HashMap<String,Cell> free, Cell cell, String word, int index) {
+		int r, c;
+		r = cell.getRow(); c = cell.getColumn();
+		table.setLetter(r,c,word.charAt(index));
+		if(free.containsKey(r+""+c))
+			free.remove(r+""+c);
 		//word has next char?
 		if(++index < word.length()) {
 			//Randomize order of neighbors
+			//List<Cell> neighbors = table.getNeighbors(cell);
 			List<Cell> neighbors = table.getNeighbors(cell);
+			//for(Cell neighbor : table.getNeighbors(cell)) neighbors.add(neighbor);
 			Collections.shuffle(neighbors);
 			
 			//Iterate over neighbors, if free or have same letter as current in index, fill
 			//Use for in case all cells fail to prevent loop
 			for(Cell neighbor : neighbors) {
 				if(neighbor.isEmpty() || neighbor.getLetter() == word.charAt(index)) {
-					fillCellNeighbors(table,neighbor,word,index);
+					fillCellNeighbors(table,free,neighbor,word,index);
 					break;
 				}
 			}			
@@ -102,15 +110,27 @@ public class Generator {
 	 */
 	List<Solution> getSolutions(Table table){
 		List<Solution> solutions = new ArrayList<>();
-		
 		for(Cell cell : table) {
 			//Mark beginning of search
-			Search search = dictionary.startSearch();
+			Search search = Dictionary.getInstance().startSearch();
 			//List of used cells
 			List<Cell> used_cells = new ArrayList<>();
 			getSolutions(table,search,used_cells,cell,"",solutions);
 		}
 		return solutions;
+	}
+	
+	/**
+	 * Check if given list of solutions already contains a word
+	 * @param solutions
+	 * @param word
+	 * @return
+	 */
+	private boolean contains(List<Solution> solutions, String word) {
+		for(Solution solution:solutions)
+			if(solution.getWord().equals(word))
+				return true;
+		return false;
 	}
 	
 	private void getSolutions(Table t,Search sh,List<Cell> used,Cell cell,String seq,List<Solution> sols) {
@@ -125,15 +145,7 @@ public class Generator {
 		seq += cell.getLetter();
 		
 		//Consider solution => unique words with more than 2 letters 
-		boolean flag = true;
-		for(Solution s : sols) {
-			if(s.getWord().equals(seq)) {
-				flag = false; 
-				break;
-			}
-		}
-		
-		if(flag && sh.isWord() && seq.length() > 2)
+		if(!contains(sols,seq) && sh.isWord() && seq.length() > 2)
 			sols.add(new Solution(seq,used));
 		
 		for(Cell neighbor : t.getNeighbors(cell)) {
@@ -153,7 +165,7 @@ public class Generator {
 		for(int i = 0; i < size; i++) {
 			String word = "";
 			for(int j = 0; j < size; j++)
-				word += (char) (rand.nextInt(26) + 'A');
+				word += "" + (char) (rand.nextInt(26) + 'A');
 			words[i] = word;
 		}
 		

@@ -20,7 +20,6 @@ import wwwordz.shared.Puzzle.Solution;
  * @since April 2020
  */
 public class Puzzle implements Serializable{
-	private static final long serialVersionUID = 1L;
 	private List<Solution> solutions;
 	private Table table;
 	

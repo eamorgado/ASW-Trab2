@@ -43,6 +43,7 @@ public class Round {
 	Puzzle puzzle;
 	Map<String,Player> player_record;
 	Players players;
+	private List<Rank> ranks;
 	
 	/**
 	 * Enum storing stage durations
@@ -66,7 +67,7 @@ public class Round {
 	}
 	
 	static enum Relative{before, after}
-	static enum Stage{join,play,ranking,report}
+	static enum Stage{join,play,report,ranking}
 	
 	/**
 	 * Custom comparator for players
@@ -86,7 +87,7 @@ public class Round {
 		puzzle = new Generator().generate();
 		player_record = new HashMap<>();
 		players = Players.getInstance();
-		
+		ranks = new ArrayList();
 		//Initiate times sequentially
 		//First join, then play, report, rank, and end
 		//Each task depends on the time for task before and the duration of the task
@@ -124,9 +125,9 @@ public class Round {
 	Puzzle getPuzzle() throws WWWordzException {
 		Date current = new Date();
 		if(current.before(play))
-			throw new WWWordzException("Action expected on " + Stage.play + "not " + Relative.before);
+			throw new WWWordzException("Action expected on " + Stage.play + " not " + Relative.before);
 		else if(current.after(report))
-			throw new WWWordzException("Action expected on " + Stage.play + "not " + Relative.after);
+			throw new WWWordzException("Action expected on " + Stage.play + " not " + Relative.after);
 		return puzzle;
 	}
 	
@@ -138,12 +139,13 @@ public class Round {
 	List<Rank> getRanking() throws WWWordzException{
 		Date current = new Date();
 		if(current.before(ranking))
-			throw new WWWordzException("Action expected on " + Stage.ranking + "not " + Relative.before);
+			throw new WWWordzException("Action expected on " + Stage.ranking + " not " + Relative.before);
 		
 		ArrayList<Player> sorted = new ArrayList<>(player_record.values());
 		Collections.sort(sorted,new PlayerComparator());
-		List<Rank> ranks = new ArrayList<>();
-		sorted.forEach((p) -> ranks.add(new Rank(p.getNick(),p.getPoints(),p.getAccumulated())));
+		ranks.clear();
+		for(Player p : sorted)
+			ranks.add(new Rank(p.getNick(),p.getPoints(),p.getAccumulated()));
 		return ranks;		
 	}
 	
@@ -190,7 +192,7 @@ public class Round {
 	long register(String nick,String password) throws WWWordzException {
 		Date current = new Date();
 		if(current.after(play))
-			throw new WWWordzException("Action expected on " + Stage.join + "not " + Relative.after);
+			throw new WWWordzException("Action expected on " + Stage.join + " not " + Relative.after);
 		else if(!players.verify(nick,password))
 			throw new WWWordzException("User non existant");
 		Player p = players.getPlayer(nick);
@@ -214,8 +216,18 @@ public class Round {
 	
 	/**
 	 * Set number of points obtained by user in this round
+	 * @throws WWWordzException 
 	 */
-	void setPoints(String nick, int points) {}
+	void setPoints(String nick, int points) throws WWWordzException {
+		Date current = new Date();
+		if(current.before(report))
+			throw new WWWordzException("Action expected on " + Stage.report + " not " + Relative.before);
+		else if(current.after(ranking))
+			throw new WWWordzException("Action expected on " + Stage.report + " not " + Relative.after);
+		else if(!player_record.containsKey(nick))
+			throw new WWWordzException("Player " + nick + " non existant");
+		player_record.get(nick).setPoints(points);
+	}
 	
 	/**
 	 * Change ranking stage

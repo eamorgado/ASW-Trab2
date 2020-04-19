@@ -137,7 +137,7 @@ public class Players implements Serializable{
 		Players.file = new File(home,"players.ser");
 	}
 	
-	boolean verify(String nick, String password) throws WWWordzException {
+	boolean verify(String nick, String password) {
 		instance = restore();
 		if(instance.players.containsKey(nick))
 			return instance.players.get(nick).getPassword().equals(password);
