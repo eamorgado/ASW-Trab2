@@ -11,6 +11,7 @@ import java.io.Serializable;
  * @since April 2020
  */
 public class Player implements Serializable{
+	private static final long serialVersionUID = 1L;
 	private int accumulated;
 	private String nick;
 	private String password;

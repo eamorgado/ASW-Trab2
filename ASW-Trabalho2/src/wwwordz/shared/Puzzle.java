@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import wwwordz.shared.Table;
 import wwwordz.shared.Table.Cell;
-import wwwordz.shared.Puzzle.Solution;
 
 /**
  * Class representing the puzzle
@@ -20,6 +19,7 @@ import wwwordz.shared.Puzzle.Solution;
  * @since April 2020
  */
 public class Puzzle implements Serializable{
+	private static final long serialVersionUID = 1L;
 	private List<Solution> solutions;
 	private Table table;
 	

@@ -89,7 +89,7 @@ public class Table implements Iterable<Cell>{
 		 * @param char letter
 		 * @return void
 		 */
-		public void setLetter(char letter) {letter = letter;}
+		public void setLetter(char let) {letter = let;}
 		
 		@Override
 		public int hashCode() {
